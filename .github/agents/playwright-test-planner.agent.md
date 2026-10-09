@@ -24,6 +24,7 @@ tools:
   - playwright-test/browser_wait_for
   - playwright-test/planner_setup_page
   - playwright-test/planner_save_plan
+model: claude-haiku-4.5
 mcp-servers:
   playwright-test:
     type: stdio

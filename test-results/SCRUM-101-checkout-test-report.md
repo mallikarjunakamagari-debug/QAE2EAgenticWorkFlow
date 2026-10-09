@@ -2,104 +2,77 @@
 
 ## Executive Summary
 
+The SauceDemo checkout was tested against the story at `user-stories/ecommerce-checkout.md`.
+
 | Measure | Result |
 | --- | --- |
 | Planned exploratory scenarios | 10 |
-| Manual scenarios executed | 10 |
-| Manual results | 6 pass, 4 fail |
-| Cross-browser automated suite | 11 tests in Chromium, Firefox, and WebKit: 21 pass, 12 fail |
-| Supplemental generator-tool test | 1 Chromium test: 1 pass |
-| Automated executions including supplemental test | 34: 22 pass, 12 fail |
-| Overall status | **FAIL** — checkout requirements are not fully met |
+| Manual scenarios exercised | 10 |
+| Cross-browser suite | 11 test cases in Chromium, Firefox, and WebKit |
+| Cross-browser result | 21 passed, 12 failed (33 executions) |
+| Additional generator tests | 2 successful checkout tests, each passed in a separate Chromium run |
+| Overall status | **FAIL** — four acceptance/business requirements remain unmet |
 
-The same four requirement failures reproduced in all three browser projects. A supplemental end-to-end purchase test generated with the Playwright test-generator tools passed in Chromium. The application under test is SauceDemo (`https://www.saucedemo.com`); no application source code is present in this workspace to fix these product defects.
+Application: https://www.saucedemo.com. Test user: `standard_user` (the password is in the story and is not repeated in this report).
 
 ## Manual Test Results
 
-| # | Scenario | Result | Observation |
-| --- | --- | --- | --- |
-| 1 | Cart review with two selected products | **FAIL** | Item names, descriptions, prices, quantities, Continue Shopping, and Checkout were present. The cart did not show the requested total-price calculation. |
-| 2 | Submit checkout with all information fields empty | **PASS** | Stayed on the information page and showed `First Name is required`. |
-| 3 | Submit with Last Name empty | **PASS** | Stayed on the information page and showed `Last Name is required`. |
-| 4 | Submit with Zip/Postal Code empty | **PASS** | Stayed on the information page and showed `Postal Code is required`. |
-| 5 | Submit special characters in First Name | **FAIL** | `!@#` was accepted and the application advanced to checkout overview; no validation error was shown. |
-| 6 | Review order, payment, shipping, and calculated totals | **PASS** | Backpack plus Bike Light showed item total `$39.98`, tax `$3.20`, and total `$43.18`, with payment and shipping information. |
-| 7 | Cancel checkout from overview | **FAIL** | Cancel returned to the product inventory rather than the cart; the cart remained populated. |
-| 8 | Finish order and return home | **PASS** | Confirmation displayed `Thank you for your order!`; cart showed empty; Back Home returned to products. |
-| 9 | Empty-cart and unauthenticated checkout guards | **FAIL (empty cart)** / **PASS (login guard)** | Checkout was enabled for an empty cart and advanced to checkout information. A logged-out direct checkout URL redirected to login with an access error. |
-| 10 | Mobile checkout at 390×844 | **PASS** | Cart, form, overview totals, and actions fit the tested viewport without horizontal overflow. |
-
-The empty-cart scenario is marked failed because its business-rule requirement was violated, even though the authentication guard passed.
+| Scenario | Result | Observation |
+| --- | --- | --- |
+| Review cart items, detail, prices and actions | **Fail** | Product details, quantities, prices, Continue Shopping and Checkout were present, but the cart did not show the requested total. |
+| Submit all checkout fields empty | **Pass** | Error identified First Name as required. |
+| Leave Last Name empty | **Pass** | Error identified Last Name as required. |
+| Leave postal code empty | **Pass** | Error identified Postal Code as required. |
+| Enter special characters in First Name | **Fail** | `!@#` was accepted and checkout advanced to the overview. |
+| Review order overview | **Pass** | Two-item cart displayed item total `$39.98`, tax `$3.20`, and total `$43.18`, along with payment and shipping details. |
+| Cancel from overview | **Fail** | Returned to inventory rather than cart. |
+| Complete order and return home | **Pass** | Confirmation displayed, cart was empty, and Back Home returned to inventory. |
+| Empty-cart / logged-out access | **Fail / Pass** | Empty-cart checkout proceeded to checkout information; logged-out direct access redirected to login. |
+| Mobile checkout at 390×844 | **Pass** | Form and overview were usable without horizontal overflow. |
 
 ### Screenshots
 
-- Cart review: [cart-review.png](../cart-review.png)
-- Order confirmation: [checkout-confirmation.png](../checkout-confirmation.png)
-- Mobile checkout information: [checkout-mobile-information.png](../checkout-mobile-information.png)
-- Mobile checkout overview: [checkout-mobile-overview.png](../checkout-mobile-overview.png)
+- [Cart review](../cart-review.png)
+- [Order confirmation](../checkout-confirmation.png)
+- [Mobile checkout information](../checkout-mobile-information.png)
+- [Mobile checkout overview](../checkout-mobile-overview.png)
 
-## Automated Test Results
+## Automated Results
 
-The original suite was run against the Chromium, Firefox, and WebKit projects configured in `playwright.config.ts`.
+The original 11-test suite was executed in all three configured browser projects:
 
-| Browser project | Tests | Passed | Failed |
+| Project | Executions | Passed | Failed |
 | --- | ---: | ---: | ---: |
 | Chromium | 11 | 7 | 4 |
 | Firefox | 11 | 7 | 4 |
 | WebKit | 11 | 7 | 4 |
-| **Cross-browser total** | **33** | **21** | **12** |
+| **Total** | **33** | **21** | **12** |
 
-The supplemental generator-tool test completed the Backpack purchase flow, validated `$29.99` item total, `$2.40` tax and `$32.39` total, confirmed the success message and empty cart, and returned to products. It passed in Chromium. Across both runs, there were **34 executions: 22 passed and 12 failed**.
+Four failures repeated in each browser: missing cart total, empty-cart checkout allowed, overview cancellation navigates to inventory, and special characters accepted. Required-field checks, overview totals, order completion, authentication redirect, and mobile viewport checks passed.
 
-### Failure summary
+Two additional generator-produced happy-path tests were each run separately in Chromium and passed. The healer also ran the suite again and debugged representative failures. Its runner output was truncated; it reported 5 passing and 4 failing tests across the four requested specs. The failure traces confirmed application behavior mismatches; the test assertions were left unchanged. That truncated rerun is not included in the 33-execution table above.
 
-Each of the following failures reproduced in Chromium, Firefox, and WebKit:
+## Agent Activities and Limits
 
-1. Cart review expects the two-item total `$39.98`; no total is displayed on the cart page.
-2. Empty-cart checkout expects to remain on the cart; it advanced to `checkout-step-one.html`.
-3. Overview cancellation expects to return to the cart; it navigated to `inventory.html`.
-4. Invalid special-character input expects validation; `!@#` was accepted and advanced to `checkout-step-two.html`.
+The planner, generator, and healer custom agents were invoked with the explicit `claude-haiku-4.5` model:
 
-All required-field validation tests passed, as did overview calculations, successful order completion/cart clearing, the unauthenticated redirect, and the mobile viewport scenario.
-
-### Agent and healing activities
-
-The custom planner, generator, and healer agent-launch tool continued to reject the configured `Claude Sonnet 4.6` model even after removing the explicit model pin from the three agent definition files; the current session appears to retain stale agent metadata. Their model pin has been removed so a VS Code session reload can select its supported default. For this session, the Playwright planner MCP tools were used to save the plan, generator MCP tools generated and ran the supplemental successful-purchase test, and the healer's test-debug tool reproduced the invalid-input failure with the application on checkout overview.
-
-The four cross-browser failures are requirement mismatches, not locator or timing problems. No test assertion was relaxed; healing the test to pass would hide product defects. The generator output and its isolated Chromium run passed.
+- **Planner:** explored the live site and verified field validation and the successful order totals. The agent reported its context had no workspace file-reading access, so it did not update the plan file. The previously generated test plan remains in `specs/saucedemo-checkout-test-plan.md`.
+- **Generator:** created `tests/saucedemo-checkout/agent-haiku-order-completion.spec.js`; it passed when run in Chromium.
+- **Healer:** reran and debugged the cart total, empty-cart guard, cancellation, and special-character failures. It found application requirement mismatches, not automation defects. No assertions were weakened or marked as skipped.
 
 ## Defects Log
 
-| Bug ID | Severity | Area | Description | Evidence |
-| --- | --- | --- | --- | --- |
-| SCRUM-101-BUG-001 | Medium | AC1 — Cart review | Cart page omits the required total-price calculation for its items. | `cart-review.spec.js` fails to find `$39.98`; see [cart screenshot](../cart-review.png). |
-| SCRUM-101-BUG-002 | Medium | AC5 — Input validation | Special characters in First Name are accepted without validation; checkout proceeds. | `checkout-validation.spec.js` reaches the overview with `!@#`. |
-| SCRUM-101-BUG-003 | Medium | Checkout business rule | Cancel from overview returns to inventory rather than the cart. | `checkout-overview.spec.js` receives `inventory.html` instead of `cart.html`. |
-| SCRUM-101-BUG-004 | Medium | Empty-cart business rule | Empty cart still exposes a working Checkout action and advances to checkout information. | `checkout-guards.spec.js` receives `checkout-step-one.html` instead of `cart.html`. |
-
-## Test Coverage Analysis
-
-| Requirement | Manual coverage | Automated coverage | Assessment |
+| Bug ID | Severity | Requirement | Finding |
 | --- | --- | --- | --- |
-| AC1 — Cart items, details, total, and actions | Item details/actions verified; total missing | Cart review test covers items, prices, actions, and total | **Partial; total requirement fails** |
-| AC2 — Information page and mandatory fields | All three missing-field cases exercised | First Name, Last Name, and postal-code tests | **Covered; passing** |
-| AC3 — Order overview and controls | Item summary, payment, shipping, and totals verified; Cancel destination fails | Totals and Cancel tests | **Partial; Cancel destination fails** |
-| AC4 — Order completion | Confirmation, empty cart, and Back Home verified | Completion tests cover confirmation, cart clearing, and return home | **Covered; passing** |
-| AC5 — Invalid input feedback | Special-character input was accepted | Invalid-input test reproduces acceptance | **Covered; failing** |
-| Business rule — Empty cart | Checkout attempted with no items | Empty-cart guard test | **Covered; failing** |
-| Business rule — Login required | Direct URL after logout redirected to login | Unauthenticated guard test | **Covered; passing** |
-| Mobile responsiveness | Checkout information and overview at 390×844 | Mobile layout and horizontal-overflow assertion | **Covered at one viewport** |
+| SCRUM-101-BUG-001 | Medium | AC1 — Cart review | Cart does not display the total price for its items. |
+| SCRUM-101-BUG-002 | Medium | AC5 — Input validation | Special characters in First Name are accepted and checkout proceeds. |
+| SCRUM-101-BUG-003 | Medium | Checkout cancellation | Overview Cancel returns to inventory rather than the cart. |
+| SCRUM-101-BUG-004 | Medium | Empty-cart business rule | Checkout is allowed to advance with an empty cart. |
 
-### Gaps and recommendations
+## Coverage and Recommendations
 
-- Fix the four logged defects and rerun the existing cross-browser suite.
-- Expand invalid-data validation cases beyond special characters (for example, whitespace-only values and postal-code formats); current acceptance criteria do not define a complete postal-code format.
-- Add additional mobile device/browser combinations; the current responsive check uses one viewport.
-- Consider validating the cart total before checkout, rather than showing calculations only on the overview.
-- Verify cancellation navigation at each checkout stage and confirm cart persistence after returning.
+Required-field validation and the successful order path are covered and passed. The cart-total, invalid-input, overview-cancel, and empty-cart requirements are covered by assertions that fail against current behavior. Login protection passed. Mobile coverage is limited to one viewport.
 
-## Summary and Recommendations
+Resolve SCRUM-101-BUG-001 through SCRUM-101-BUG-004 and rerun the full three-browser suite. Add whitespace-only and postal-format validation cases once the product requirement defines accepted formats; add further mobile viewports and cancellation checks at each checkout stage.
 
-The happy-path checkout, field-required validation, login protection, overview calculations, order confirmation, and tested mobile layout work in all configured browser projects. The cart total, special-character validation, overview cancellation destination, and empty-cart guard are unmet requirements and block acceptance.
-
-**Recommendation:** resolve SCRUM-101-BUG-001 through SCRUM-101-BUG-004, then rerun all checkout tests in Chromium, Firefox, and WebKit. Do not treat the current 22 passing automated executions as a release pass while the 12 requirement-failing executions remain.
+**Release assessment: not ready for acceptance** while the four requirement failures remain.

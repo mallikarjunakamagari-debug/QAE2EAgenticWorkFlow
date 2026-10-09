@@ -13,6 +13,7 @@ tools:
   - playwright-test/test_debug
   - playwright-test/test_list
   - playwright-test/test_run
+model: claude-haiku-4.5
 mcp-servers:
   playwright-test:
     type: stdio
