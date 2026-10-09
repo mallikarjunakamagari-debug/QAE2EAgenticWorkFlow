@@ -7,12 +7,12 @@
 | Planned exploratory scenarios | 10 |
 | Manual scenarios executed | 10 |
 | Manual results | 6 pass, 4 fail |
-| Automated test cases | 11 |
-| Automated executions | 33 (11 tests across Chromium, Firefox, and WebKit) |
-| Automated results | 21 pass, 12 fail |
+| Cross-browser automated suite | 11 tests in Chromium, Firefox, and WebKit: 21 pass, 12 fail |
+| Supplemental generator-tool test | 1 Chromium test: 1 pass |
+| Automated executions including supplemental test | 34: 22 pass, 12 fail |
 | Overall status | **FAIL** — checkout requirements are not fully met |
 
-The same four requirement failures reproduced in all three browser projects. The test scripts are stable, and the failures match behavior observed manually. The application under test is SauceDemo (`https://www.saucedemo.com`); no application source code is present in this workspace to fix these product defects.
+The same four requirement failures reproduced in all three browser projects. A supplemental end-to-end purchase test generated with the Playwright test-generator tools passed in Chromium. The application under test is SauceDemo (`https://www.saucedemo.com`); no application source code is present in this workspace to fix these product defects.
 
 ## Manual Test Results
 
@@ -40,14 +40,16 @@ The empty-cart scenario is marked failed because its business-rule requirement w
 
 ## Automated Test Results
 
-The suite was run against the projects configured in `playwright.config.ts`.
+The original suite was run against the Chromium, Firefox, and WebKit projects configured in `playwright.config.ts`.
 
 | Browser project | Tests | Passed | Failed |
 | --- | ---: | ---: | ---: |
 | Chromium | 11 | 7 | 4 |
 | Firefox | 11 | 7 | 4 |
 | WebKit | 11 | 7 | 4 |
-| **Total** | **33** | **21** | **12** |
+| **Cross-browser total** | **33** | **21** | **12** |
+
+The supplemental generator-tool test completed the Backpack purchase flow, validated `$29.99` item total, `$2.40` tax and `$32.39` total, confirmed the success message and empty cart, and returned to products. It passed in Chromium. Across both runs, there were **34 executions: 22 passed and 12 failed**.
 
 ### Failure summary
 
@@ -60,11 +62,11 @@ Each of the following failures reproduced in Chromium, Firefox, and WebKit:
 
 All required-field validation tests passed, as did overview calculations, successful order completion/cart clearing, the unauthenticated redirect, and the mobile viewport scenario.
 
-### Healing activities
+### Agent and healing activities
 
-The requested custom planner and generator agent invocations could not start because their agent definitions specify `Claude Sonnet 4.6`, which is not an available model in this environment. The planner MCP tools were used to explore and save the plan; the Playwright test MCP runner executed the generated suites.
+The custom planner, generator, and healer agent-launch tool continued to reject the configured `Claude Sonnet 4.6` model even after removing the explicit model pin from the three agent definition files; the current session appears to retain stale agent metadata. Their model pin has been removed so a VS Code session reload can select its supported default. For this session, the Playwright planner MCP tools were used to save the plan, generator MCP tools generated and ran the supplemental successful-purchase test, and the healer's test-debug tool reproduced the invalid-input failure with the application on checkout overview.
 
-The test-healer agent invocation was also unavailable for the same model configuration. The 12 failing executions were inspected against manual browser evidence. They are application/acceptance-criteria mismatches rather than broken selectors, timing, or assertions, so no test was weakened or marked passing. There were no test-code healing changes to rerun.
+The four cross-browser failures are requirement mismatches, not locator or timing problems. No test assertion was relaxed; healing the test to pass would hide product defects. The generator output and its isolated Chromium run passed.
 
 ## Defects Log
 
@@ -82,7 +84,7 @@ The test-healer agent invocation was also unavailable for the same model configu
 | AC1 — Cart items, details, total, and actions | Item details/actions verified; total missing | Cart review test covers items, prices, actions, and total | **Partial; total requirement fails** |
 | AC2 — Information page and mandatory fields | All three missing-field cases exercised | First Name, Last Name, and postal-code tests | **Covered; passing** |
 | AC3 — Order overview and controls | Item summary, payment, shipping, and totals verified; Cancel destination fails | Totals and Cancel tests | **Partial; Cancel destination fails** |
-| AC4 — Order completion | Confirmation, empty cart, and Back Home verified | Completion test covers confirmation, cart clearing, and return home | **Covered; passing** |
+| AC4 — Order completion | Confirmation, empty cart, and Back Home verified | Completion tests cover confirmation, cart clearing, and return home | **Covered; passing** |
 | AC5 — Invalid input feedback | Special-character input was accepted | Invalid-input test reproduces acceptance | **Covered; failing** |
 | Business rule — Empty cart | Checkout attempted with no items | Empty-cart guard test | **Covered; failing** |
 | Business rule — Login required | Direct URL after logout redirected to login | Unauthenticated guard test | **Covered; passing** |
@@ -100,4 +102,4 @@ The test-healer agent invocation was also unavailable for the same model configu
 
 The happy-path checkout, field-required validation, login protection, overview calculations, order confirmation, and tested mobile layout work in all configured browser projects. The cart total, special-character validation, overview cancellation destination, and empty-cart guard are unmet requirements and block acceptance.
 
-**Recommendation:** resolve SCRUM-101-BUG-001 through SCRUM-101-BUG-004, then rerun all 11 tests in Chromium, Firefox, and WebKit. Do not treat the current 21 passing automated executions as a release pass while the 12 requirement-failing executions remain.
+**Recommendation:** resolve SCRUM-101-BUG-001 through SCRUM-101-BUG-004, then rerun all checkout tests in Chromium, Firefox, and WebKit. Do not treat the current 22 passing automated executions as a release pass while the 12 requirement-failing executions remain.

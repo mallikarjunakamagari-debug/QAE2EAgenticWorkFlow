@@ -5,6 +5,7 @@ node_modules/
 !/test-results/SCRUM-101-checkout-test-report.md
 /playwright-report/
 /blob-report/
+/playwright-artifacts/
 /playwright/.cache/
 /playwright/.auth/
 /.playwright-mcp/

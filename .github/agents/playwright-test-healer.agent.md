@@ -13,7 +13,6 @@ tools:
   - playwright-test/test_debug
   - playwright-test/test_list
   - playwright-test/test_run
-model: Claude Sonnet 4.6
 mcp-servers:
   playwright-test:
     type: stdio
