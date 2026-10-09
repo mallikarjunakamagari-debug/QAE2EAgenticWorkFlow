@@ -42,4 +42,11 @@ test.describe('SauceDemo checkout information validation', () => {
     await expect(page).toHaveURL(/checkout-step-one\.html$/);
     await expect(page.getByRole('alert')).toBeVisible();
   });
+
+  test('rejects whitespace-only first name', async ({ page }) => {
+    await enterCheckoutInformation(page, '   ', 'QA', '12345');
+    await page.locator('[data-test="continue"]').click();
+    await expect(page).toHaveURL(/checkout-step-one\.html$/);
+    await expect(page.getByRole('alert')).toBeVisible();
+  });
 });

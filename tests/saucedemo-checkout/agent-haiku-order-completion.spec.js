@@ -21,7 +21,7 @@ test.describe('SCRUM-101: SauceDemo Checkout', () => {
     // 4. Open the cart and verify the selected product is listed.
     await page.locator('[data-test="shopping-cart-link"]').click();
     await expect(page).toHaveURL(/\/cart\.html$/);
-    await expect(page.getByRole('button', { name: 'View details for Sauce Labs Backpack' })).toBeVisible();
+    await expect(page.locator('[data-test="item-4-title-link"]')).toBeVisible();
 
     // 5. Proceed to checkout and enter first name, last name, and postal code.
     await page.locator('[data-test="checkout"]').click();

@@ -36,4 +36,11 @@ test.describe('SauceDemo checkout overview', () => {
     await expect(page).toHaveURL(/cart\.html$/);
     await expect(page.getByText('Sauce Labs Backpack')).toBeVisible();
   });
+
+  test('browser Back from overview returns to checkout information', async ({ page }) => {
+    await page.goBack();
+    await expect(page).toHaveURL(/checkout-step-one\.html$/);
+    await expect(page.getByRole('textbox', { name: 'First Name' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Cart, 2 items' })).toBeVisible();
+  });
 });
